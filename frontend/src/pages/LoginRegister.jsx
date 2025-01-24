@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { useUser } from '../context/UserContext'; // Import the useUser hook
+import { useUser } from '../userContext';
 
 const LoginRegister = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -29,10 +29,10 @@ const LoginRegister = () => {
       let response;
       if (isLogin) {
         // Call backend login API
-        response = await axios.post('http://localhost:5000/auth/login', formData);
+        response = await axios.post('http://localhost:5000/login', formData);
       } else {
         // Call backend registration API
-        response = await axios.post('http://localhost:5000/auth/register', formData);
+        response = await axios.post('http://localhost:5000/register', formData);
       }
 
       // Set user info in context after successful login or registration
