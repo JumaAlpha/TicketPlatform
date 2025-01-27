@@ -1,7 +1,6 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
-console.log("User Model:", User);
 
 exports.register = (req, res) => {
     const { email, name, password } = req.body;
@@ -62,7 +61,7 @@ exports.login = async (req, res) => {
                 return res.status(400).json({ message: "User not found" });
             }
 
-            const user = users[0]; // We expect a single user object in the array
+            const user = users[0]; 
 
             // Check if the password matches
             const isMatch = await bcrypt.compare(password, user.password);
@@ -70,7 +69,6 @@ exports.login = async (req, res) => {
                 return res.status(400).json({ message: "Invalid credentials" });
             }
 
-            // Generate a JWT token (optional, if you want to use it for session management)
             const token = jwt.sign(
                 { userId: user.id, email: user.email },
                 process.env.JWT_SECRET || 'your_jwt_secret',
