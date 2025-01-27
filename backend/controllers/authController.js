@@ -3,7 +3,6 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 console.log("User Model:", User);
 
-
 exports.register = (req, res) => {
     const { email, name, password } = req.body;
 
@@ -37,7 +36,12 @@ exports.register = (req, res) => {
                     return res.status(500).json({ message: "Database error" });
                 }
 
-                res.status(201).json({ message: "User registered successfully" });
+                // Include the newly created user's data in the response
+                const newUser = { id: result.insertId, name, email };
+                res.status(201).json({
+                    message: "User registered successfully",
+                    user: newUser,
+                });
             });
         });
     });
