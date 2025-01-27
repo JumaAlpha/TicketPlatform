@@ -1,41 +1,46 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { User } = require("../models/userModel");
+const User = require("../models/userModel");
+console.log("User Model:", User);
 
-exports.register = async (req, res) => {
+
+exports.register = (req, res) => {
     const { email, name, password } = req.body;
 
     if (!email || !name || !password) {
         return res.status(400).json({ message: "All fields are required!" });
     }
 
-    try {
-        // Check if user already exists
-        User.findByEmail(email, async (err, existingUser) => {
-            if (err) return res.status(500).json({ message: "Server error" });
-            if (existingUser.length > 0) {
-                return res.status(400).json({ message: "User already exists" });
+    console.log("Register request body:", req.body);
+
+    User.findByEmail(email, (err, existingUser) => {
+        if (err) {
+            console.error("Database error during findByEmail:", err);
+            return res.status(500).json({ message: "Database error" });
+        }
+
+        console.log("Existing user result:", existingUser);
+
+        if (existingUser.length > 0) {
+            return res.status(400).json({ message: "User already exists" });
+        }
+
+        bcrypt.hash(password, 10, (err, hashedPassword) => {
+            if (err) {
+                console.error("Error hashing password:", err);
+                return res.status(500).json({ message: "Error hashing password" });
             }
 
-            // Hash the password
-            const hashedPassword = await bcrypt.hash(password, 10);
-
-            // Create new user
             User.create(name, email, hashedPassword, (err, result) => {
-                if (err) return res.status(500).json({ message: "Server error" });
-                
-                // Respond with user details (excluding password)
-                const newUser = { id: result.insertId, email, name };
-                res.status(201).json({
-                    message: "User registered successfully",
-                    user: newUser,
-                });
+                if (err) {
+                    console.error("Database error during user creation:", err);
+                    return res.status(500).json({ message: "Database error" });
+                }
+
+                res.status(201).json({ message: "User registered successfully" });
             });
         });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Server error" });
-    }
+    });
 };
 
 exports.login = async (req, res) => {

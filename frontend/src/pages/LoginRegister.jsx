@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { useUser } from '../userContext';
+import { useUser } from '../userContext'; // Hook to manage user state
 
 const LoginRegister = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -12,7 +12,7 @@ const LoginRegister = () => {
   });
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
-  const { setUserInfo } = useUser(); // Hook to set user info in context
+  const { setUserInfo } = useUser();
 
   const handleChange = (e) => {
     setFormData({
@@ -28,21 +28,28 @@ const LoginRegister = () => {
     try {
       let response;
       if (isLogin) {
-        // Call backend login API
-        response = await axios.post('http://localhost:5000/login', formData);
+        // Login API
+        response = await axios.post('http://localhost:5000/auth/login', {
+          email: formData.email,
+          password: formData.password,
+        });
       } else {
-        // Call backend registration API
-        response = await axios.post('http://localhost:5000/register', formData);
+        // Register API
+        response = await axios.post('http://localhost:5000/auth/register', {
+          email: formData.email,
+          password: formData.password,
+          name: formData.name,
+        });
       }
 
-      // Set user info in context after successful login or registration
+      // Store user info in context
       const userInfo = {
         name: response.data.user.name,
         email: response.data.user.email,
       };
       setUserInfo(userInfo);
 
-      // Redirect to the homepage upon successful login/registration
+      // Navigate to homepage
       navigate('/home');
     } catch (error) {
       console.error(error);
